@@ -138,8 +138,11 @@ int libvchan_client_init_async_finish(libvchan_t *ctrl, bool blocking) {
     char **vec;
     unsigned int len;
     char *tmp_str = NULL;
+    
+    fprintf(stderr,"PASSE 1\n");
 
     for (;;) {
+            fprintf(stderr,"PASSE 2");
         vec = xs_check_watch(ctrl->xs);
         if (vec) {
             if (strcmp(vec[XS_WATCH_TOKEN], "domid") == 0) {
@@ -153,10 +156,13 @@ int libvchan_client_init_async_finish(libvchan_t *ctrl, bool blocking) {
             }
             free(vec);
         } else if (errno == EAGAIN) {
+                fprintf(stderr,"PASSE break\n");
             break;
         } else if (errno == EINTR) {
+                fprintf(stderr,"PASSE CONTINUE\n");
             continue;
         } else {
+            fprintf(stderr,"PASSE ERROR -1 \n");
             return -1;
         }
     }
@@ -189,12 +195,14 @@ int libvchan_client_init_async_finish(libvchan_t *ctrl, bool blocking) {
         v = snprintf(xs_path_base, sizeof(xs_path_base), "/local/domain/%d/data/vchan/%d/%d",
                      ctrl->remote_domain, ctrl->local_domain, ctrl->port);
         if ((unsigned)v >= sizeof(xs_path_base)) {
+                fprintf(stderr,"PASSE pb taille\n");
             goto err;
         }
 
         /* watch on this key as we might not have access to the whole directory */
         v = asprintf(&ctrl->xs_path, "%.128s/event-channel", xs_path_base);
         if (v < 0) {
+                fprintf(stderr,"PASSE 3\n");
             goto err;
         }
 
